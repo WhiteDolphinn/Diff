@@ -51,15 +51,42 @@ static void node_print(struct Node* node)
     node_print(node->right);
 
     if(node->type == 0)
-        graph_add_dot(node, node->value, node->type, node->left, node->right, "#D0FFD0");
-    else
         graph_add_dot(node, node->value, node->type, node->left, node->right, "#FFD0D0");
+    else
+        graph_add_dot(node, node->value, node->type, node->left, node->right, "#D0FFD0");
 
     if(node->left != nullptr)
         graph_add_arrow(node, node->left, "#0000FF");
 
     if(node->right != nullptr)
         graph_add_arrow(node, node->right, "#FF0000");
+}
+
+void tree_print_inorder(struct Node* tree)
+{
+    if(tree == nullptr)
+        return;
+
+    printf("( ");
+
+    tree_print_inorder(tree->left);
+
+    if(tree->type == 0)
+        printf("%lf ", tree->value);
+    else
+    {
+        switch((int)tree->value)
+        {
+            case 1:   printf("+ "); break;
+            case 2:   printf("- "); break;
+            case 3:   printf("* "); break;
+            case 4:   printf("/ "); break;
+        }
+    }
+
+    tree_print_inorder(tree->right);
+
+    printf(") ");
 }
 
 

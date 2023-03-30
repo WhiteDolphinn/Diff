@@ -18,6 +18,12 @@ Node* create_node(int type, double value, Node* left, Node* right)
     return node;
 }
 
+void push_node(Node* node, int type, double value)
+{
+    node->type = type;
+    node->value = value;
+}
+
 void delete_tree(struct Node* node)
 {
     if(node == nullptr)
@@ -52,8 +58,10 @@ static void node_print(struct Node* node)
 
     if(node->type == 0)
         graph_add_dot(node, node->value, node->type, node->left, node->right, "#FFD0D0");
-    else
+    else if(node->type == 1 || node->type == 2 || node->type == 3 || node->type == 4)
         graph_add_dot(node, node->value, node->type, node->left, node->right, "#D0FFD0");
+    else
+        graph_add_dot(node, node->value, node->type, node->left, node->right, "#FF0000");
 
     if(node->left != nullptr)
         graph_add_arrow(node, node->left, "#0000FF");
@@ -81,6 +89,7 @@ void tree_print_inorder(struct Node* tree)
             case 2:   printf("- "); break;
             case 3:   printf("* "); break;
             case 4:   printf("/ "); break;
+            default:  printf("bebra\n"); break;
         }
     }
 

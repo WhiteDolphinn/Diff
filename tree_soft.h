@@ -9,6 +9,7 @@ struct Node{
 };
 
 Node* create_node(int type, double value, Node* left = nullptr, Node* right = nullptr);
+void push_node(Node* node, int type, double value);
 //Node* delete_node(struct Node* node);
 void delete_tree(struct Node* node);
 void tree_print(struct Node* tree);

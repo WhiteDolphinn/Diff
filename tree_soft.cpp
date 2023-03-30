@@ -1,4 +1,5 @@
 #include "tree_soft.h"
+#include "diff.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include "log.h"
@@ -58,7 +59,7 @@ static void node_print(struct Node* node)
 
     if(node->type == 0)
         graph_add_dot(node, node->value, node->type, node->left, node->right, "#FFD0D0");
-    else if(node->type == 1 || node->type == 2 || node->type == 3 || node->type == 4)
+    else if(node->type == ADD || node->type == SUB || node->type == MUL || node->type == DIV)
         graph_add_dot(node, node->value, node->type, node->left, node->right, "#D0FFD0");
     else
         graph_add_dot(node, node->value, node->type, node->left, node->right, "#FF0000");

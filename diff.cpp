@@ -59,9 +59,9 @@ static void read_node(char* expr, Node** root)
 
     switch(expr[index])
     {
-        case '+':
+        case '+': case '-': case '*': case '/':
         {
-            push_node(*root, ADD, ADD);
+            push_node(*root, expr[index], expr[index]);
             index++;
             skip_spaces(expr, &index);
             read_node(expr, &((*root)->left));

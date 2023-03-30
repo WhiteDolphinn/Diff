@@ -6,10 +6,10 @@
 
 enum Type{
     NUMBER = 0,
-    ADD = 1,
-    SUB = 2,
-    MUL = 3,
-    DIV = 4,
+    ADD = '+',
+    SUB = '-',
+    MUL = '*',
+    DIV = '/',
 };
 
 double eval(struct Node* node);

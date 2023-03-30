@@ -3,7 +3,9 @@
 #include "text.h"
 #include "tree_soft.h"
 
-static void read_node(char* expr, Node** root);
+static void read_node_preorder(char* expr, Node** root);
+static void read_number_preorder(char* expr, Node** root, int* index);
+static void read_sign_preorder(char* expr, Node** root, int* index);
 static void skip_spaces(char* expr , int* index);
 
 double eval(struct Node* node)
@@ -30,19 +32,17 @@ double eval(struct Node* node)
 void read_expession(FILE* source_file, Node** root)
 {
     char expession[MAX_STR_LENGTH] = {};
-    //int current_index = 0;
 
     if(!fscanf(source_file, " %[^\n]", expession))
     {
         printf("I can't read expession\n");
         return;
     }
-    /*for(int i = 0; expression[i] != '\0'; i++)
-        read_node(expression + i, i, root);*/
-    read_node(expession, root);
+
+    read_node_preorder(expession, root);
 }
 
-static void read_node(char* expr, Node** root)
+static void read_node_preorder(char* expr, Node** root)
 {
     static int index = 0;
     skip_spaces(expr ,&index);
@@ -59,30 +59,45 @@ static void read_node(char* expr, Node** root)
 
     switch(expr[index])
     {
-        case '+': case '-': case '*': case '/':
+        case '+': case '*': case '/':
         {
-            push_node(*root, expr[index], expr[index]);
+            read_sign_preorder(expr, root, &index);
+            break;
+        }
+
+        case '-':
+        {
+            int old_index = index;
             index++;
             skip_spaces(expr, &index);
-            read_node(expr, &((*root)->left));
+            switch(expr[index])
+            {
+                case '(':
+                {
+                    index = old_index;
+                    read_sign_preorder(expr, root, &index);
+                    break;
+                }
+                case '0'...'9':
+                {
+                    index = old_index;
+                    read_number_preorder(expr, root, &index);
+                    break;
+                }
+                default:
+                {
+                    printf("Error in position %d. Symbol is %c but expected number or '('.\n", index, expr[index]);
+                    return;
+                }
+            }
+
             skip_spaces(expr, &index);
-            read_node(expr, &((*root)->right));
             break;
         }
 
         case '0'...'9':
         {
-            int num = 0;
-            sscanf(expr + index, " %d", &num);
-            push_node(*root, NUMBER, num);
-
-            while(num != 0)
-            {
-                index++;
-                num /= 10;
-            }
-
-            skip_spaces(expr, &index);
+            read_number_preorder(expr, root, &index);
             break;
         }
         default:
@@ -100,6 +115,28 @@ static void read_node(char* expr, Node** root)
 
     index++;
     skip_spaces(expr, &index);
+}
+
+static void read_number_preorder(char* expr, Node** root, int* index)
+{
+    double num = 0;
+    sscanf(expr + *index, " %lf", &num);
+    push_node(*root, NUMBER, num);
+
+    while(isdigit(expr[*index]) || expr[*index] == '.' || expr[*index] == '-')
+        (*index)++;
+
+    skip_spaces(expr, index);
+}
+
+static void read_sign_preorder(char* expr, Node** root, int* index)
+{
+    push_node(*root, expr[*index], expr[*index]);
+    (*index)++;
+    skip_spaces(expr, index);
+    read_node_preorder(expr, &((*root)->left));
+    skip_spaces(expr, index);
+    read_node_preorder(expr, &((*root)->right));
 }
 
 static void skip_spaces(char* expr, int* index)

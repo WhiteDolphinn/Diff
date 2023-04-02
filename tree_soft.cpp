@@ -7,7 +7,7 @@
 
 static void node_print(struct Node* node);
 
-Node* create_node(int type, double value, Node* left, Node* right)
+struct Node* create_node(int type, double value, struct Node* left, struct Node* right)
 {
     struct Node* node = (struct Node*)calloc(1, sizeof(struct Node));
 
@@ -19,7 +19,7 @@ Node* create_node(int type, double value, Node* left, Node* right)
     return node;
 }
 
-void push_node(Node* node, int type, double value)
+void push_node(struct Node* node, int type, double value)
 {
     node->type = type;
     node->value = value;
@@ -57,10 +57,12 @@ static void node_print(struct Node* node)
     node_print(node->left);
     node_print(node->right);
 
-    if(node->type == 0)
+    if(node->type == NUMBER)
         graph_add_dot(node, node->value, node->type, node->left, node->right, "#FFD0D0");
     else if(node->type == ADD || node->type == SUB || node->type == MUL || node->type == DIV)
         graph_add_dot(node, node->value, node->type, node->left, node->right, "#D0FFD0");
+    else if(node->type == VAR)
+        graph_add_dot(node, node->value, node->type, node->left, node->right, "#D0D0FF");
     else
         graph_add_dot(node, node->value, node->type, node->left, node->right, "#FF0000");
 
@@ -99,4 +101,10 @@ void tree_print_inorder(struct Node* tree)
     printf(") ");
 }
 
+struct Node* copy_node(struct Node* node)
+{
+    if(node == nullptr)
+        return nullptr;
 
+    return create_node(node->type, node->value, copy_node(node->left), copy_node(node->right));
+}

@@ -10,11 +10,12 @@ enum Type{
     SUB = '-',
     MUL = '*',
     DIV = '/',
+    VAR = 'x',
 };
 
 double eval(struct Node* node);
 void read_expession_preorder(FILE* source_file, Node** root);
 void read_expession_inorder(FILE* source_file, Node** root);
-
+struct Node* diff(struct Node* node);
 
 #endif

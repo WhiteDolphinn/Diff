@@ -8,11 +8,12 @@ struct Node{
     struct Node* right;
 };
 
-Node* create_node(int type, double value, Node* left = nullptr, Node* right = nullptr);
-void push_node(Node* node, int type, double value);
+struct Node* create_node(int type, double value, struct Node* left = nullptr, struct Node* right = nullptr);
+void push_node(struct Node* node, int type, double value);
 //Node* delete_node(struct Node* node);
 void delete_tree(struct Node* node);
 void tree_print(struct Node* tree);
 void tree_print_inorder(struct Node* tree);
+struct Node* copy_node(struct Node* node);
 
 #endif

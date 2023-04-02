@@ -22,7 +22,7 @@ int main()
         return 0;
     }
 
-    read_expession(source_file, &n1);
+    read_expession_inorder(source_file, &n1);
     tree_print(n1);
     printf("eval = %lf\n", eval(n1));
 

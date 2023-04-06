@@ -18,5 +18,6 @@ void tree_print_inorder(struct Node* tree);
 struct Node* copy_node(struct Node* node);
 void optimizate_tree(struct Node* node);
 bool is_number_tree(struct Node* node);
+void merge_nodes(struct Node* in_node, struct Node* out_node);
 
 #endif

@@ -12,6 +12,7 @@ enum Type{
     DIV = '/',
     POW = '^',
     VAR = 'x',
+    LN = 'l'
 };
 
 double eval(struct Node* node);

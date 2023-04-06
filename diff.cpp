@@ -13,6 +13,7 @@ static void read_sign_preorder(char* expr, Node** root, int* index);
 static bool read_sign_inorder(char* expr, Node** root, int* index);
 static void skip_spaces(char* expr , int* index);
 static void read_variable_inorder(char* expr, Node** root, int* index);
+static struct Node* diff_pow(struct Node* node);
 
 double eval(struct Node* node)
 {
@@ -278,8 +279,8 @@ struct Node* diff(struct Node* node)
     //optimizate_tree(node);
     switch(node->type)
     {
-        case VAR:       return create_node(NUMBER, 1);
-        case NUMBER:    return create_node(NUMBER, 0);
+        case VAR:       return num(1);
+        case NUMBER:    return num(0);
         case ADD:
         {
             struct Node* answer = add(diff(node->left), diff(node->right));
@@ -319,10 +320,56 @@ struct Node* diff(struct Node* node)
             return answer;
         }
 
+        case POW:
+        {
+            struct Node* answer = diff_pow(node);
+            optimizate_tree(answer);
+            return answer;
+        }
+
         default:
         {
             printf("Uncknown type: %d  (%c)\n", node->type, (char)node->type);
             return nullptr;
         }
     }
+}
+
+static struct Node* diff_pow(struct Node* node)
+{
+    if(is_number_tree(node->left) && is_number_tree(node->right))
+        return num(0);
+
+    if(is_number_tree(node->right))
+    {
+        double node_pow = eval(node->right);
+
+        struct Node* first_part = num(node_pow);
+        struct Node* second_part = pow(copy_node(node->left), num(node_pow - 1));
+        struct Node* third_part = diff(node->left);
+
+        struct Node* fs_part = mul(first_part, second_part);
+
+        struct Node* answer = mul(fs_part, third_part);
+        //tree_print(buf);
+        return answer;
+    }
+
+    if(is_number_tree(node->left))
+    {
+        struct Node* first_part = num(log(node->left->value));
+        struct Node* second_part = copy_node(node);
+        struct Node* third_part = diff(node->right);
+
+        struct Node* answer = mul(mul(first_part, second_part), third_part);
+        return answer;
+    }
+
+    /*struct Node* cl = copy_node(node->left);
+    struct Node* cr = copy_node(node->right);
+    struct Node* dl = diff(node->left);
+    struct Node* dr = diff(node->right);
+
+    struct Node* u_pow_v = pow(cl, cr);
+    struct Node* diffv_lnu = mul(dr, );*/
 }

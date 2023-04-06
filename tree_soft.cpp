@@ -135,6 +135,20 @@ void optimizate_tree(struct Node* node)
         return;
     }
 
+    if((node->type == ADD || node->type == SUB) && equal_double(node->right->value, 0))
+    {
+        delete_tree(node->right);
+        merge_nodes(node, node->left);
+        return;
+    }
+
+    if(node->type == ADD && equal_double(node->left->value, 0))
+    {
+        delete_tree(node->left);
+        merge_nodes(node, node->right);
+        return;
+    }
+
     if(node->type == MUL && (equal_double(node->left->value, 0) || equal_double(node->right->value, 0)))
     {
         delete_tree_without_root(node);
@@ -142,21 +156,17 @@ void optimizate_tree(struct Node* node)
         return;
     }
 
-    if((node->type == MUL || node->type == DIV) && equal_double(node->right->value, 1))
+    if((node->type == MUL || node->type == DIV || node->type == POW) && equal_double(node->right->value, 1))
     {
-        int left_node_type = node->left->type;
-        double left_node_value = node->left->value;
-        delete_tree_without_root(node);
-        push_node(node, left_node_type, left_node_value);
+        delete_tree(node->right);
+        merge_nodes(node, node->left);
         return;
     }
 
-    if(node->type == MUL &&equal_double(node->left->value, 1))
+    if(node->type == MUL && equal_double(node->left->value, 1))
     {
-        int right_node_type = node->right->type;
-        double right_node_value = node->right->value;
-        delete_tree_without_root(node);
-        push_node(node, right_node_type, right_node_value);
+        delete_tree(node->left);
+        merge_nodes(node, node->right);
         return;
     }
 
@@ -183,6 +193,8 @@ static int equal_double(double a, double b)
 
 bool is_number_tree(struct Node* node)
 {
+    if(node == nullptr)
+        return false;
 
     switch(node->type)
     {
@@ -199,3 +211,12 @@ bool is_number_tree(struct Node* node)
     return false;
 }
 
+void merge_nodes(struct Node* in_node, struct Node* out_node)
+{
+    in_node->type = out_node->type;
+    in_node->value = out_node->value;
+    in_node->left = out_node->left;
+    in_node->right = out_node->right;
+
+    free(out_node);
+}

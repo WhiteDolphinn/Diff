@@ -14,6 +14,8 @@ int main()
     }
 
     read_expession_inorder(source_file, &n1);
+
+    optimizate_tree(n1);
     tree_print(n1);
     //printf("eval = %lf\n", eval(n1));
 

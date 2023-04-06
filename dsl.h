@@ -7,6 +7,8 @@ struct Node* add(struct Node* node1, struct Node* node2);
 struct Node* sub(struct Node* node1, struct Node* node2);
 struct Node* mul(struct Node* node1, struct Node* node2);
 struct Node* div(struct Node* node1, struct Node* node2);
+struct Node* pow(struct Node* node1, struct Node* node2);
+struct Node* num(double number);
 
 struct Node* add(struct Node* node1, struct Node* node2)
 {
@@ -26,6 +28,16 @@ struct Node* mul(struct Node* node1, struct Node* node2)
 struct Node* div(struct Node* node1, struct Node* node2)
 {
     return create_node(DIV, DIV, node1, node2);
+}
+
+struct Node* pow(struct Node* node1, struct Node* node2)
+{
+    return create_node(POW, POW, node1, node2);
+}
+
+struct Node* num(double number)
+{
+    return create_node(NUMBER, number);
 }
 
 #endif

@@ -14,11 +14,10 @@ static void read_variable_inorder(char* expr, Node** root, int* index);
 
 double eval(struct Node* node)
 {
-    static bool is_correct_eq = true;
-    if(is_correct_eq == false)
+    if(!is_number_tree(node))
         return 14888841;
 
-    if(node->type == NUMBER || node->type == VAR) /////////////////////////временно
+    if(node->type == NUMBER)
         return node->value;
 
     switch(node->type)
@@ -32,12 +31,8 @@ double eval(struct Node* node)
         case DIV:
             return eval(node->left) / eval(node->right);
         default:
-        {
-            is_correct_eq = false;
             return 14888841;
-        }
     }
-    is_correct_eq = false;
     return 14888841;
 }
 
@@ -276,12 +271,23 @@ static void read_variable_inorder(char* expr, Node** root, int* index)
 
 struct Node* diff(struct Node* node)
 {
+    //optimizate_tree(node);
     switch(node->type)
     {
         case VAR:       return create_node(NUMBER, 1);
         case NUMBER:    return create_node(NUMBER, 0);
-        case ADD:       return create_node(ADD, ADD, diff(node->left), diff(node->right));
-        case SUB:       return create_node(SUB, SUB, diff(node->left), diff(node->right));
+        case ADD:
+        {
+            struct Node* answer = create_node(ADD, ADD, diff(node->left), diff(node->right));
+            optimizate_tree(answer);
+            return answer;
+        }
+        case SUB:
+        {
+            struct Node* answer = create_node(SUB, SUB, diff(node->left), diff(node->right));
+            optimizate_tree(answer);
+            return answer;
+        }
         case MUL:
         {
             struct Node* cl = copy_node(node->left);
@@ -290,7 +296,10 @@ struct Node* diff(struct Node* node)
             struct Node* dr = diff(node->right);
             struct Node* left_part = create_node(MUL, MUL, cl, dr);
             struct Node* right_part = create_node(MUL, MUL, dl, cr);
-            return create_node(ADD, ADD, left_part, right_part);
+            struct Node* branch = create_node(ADD, ADD, left_part, right_part);
+            optimizate_tree(branch);
+            //tree_print(branch);
+            return branch;
         }
 
         case DIV:
@@ -303,7 +312,9 @@ struct Node* diff(struct Node* node)
             struct Node* first_part = create_node(MUL, MUL, dl, cr);
             struct Node* second_part = create_node(MUL, MUL, cl, dr);
             struct Node* third_part = create_node(SUB, SUB, first_part, second_part);
-            return create_node(DIV, DIV, third_part, r_2);
+            struct Node* answer = create_node(DIV, DIV, third_part, r_2);
+            optimizate_tree(answer);
+            return answer;
         }
 
         default:

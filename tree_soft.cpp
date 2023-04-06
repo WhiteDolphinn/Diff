@@ -2,10 +2,12 @@
 #include "diff.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include "log.h"
 #include "dotter.h"
 
 static void node_print(struct Node* node);
+static int equal_double(double a, double b);
 
 struct Node* create_node(int type, double value, struct Node* left, struct Node* right)
 {
@@ -34,6 +36,14 @@ void delete_tree(struct Node* node)
     delete_tree(node->right);
 
     free(node);
+}
+
+void delete_tree_without_root(struct Node* node)
+{
+    delete_tree(node->left);
+    delete_tree(node->right);
+    node->left = nullptr;
+    node->right = nullptr;
 }
 
 void tree_print(struct Node* tree)
@@ -108,3 +118,79 @@ struct Node* copy_node(struct Node* node)
 
     return create_node(node->type, node->value, copy_node(node->left), copy_node(node->right));
 }
+
+void optimizate_tree(struct Node* node)
+{
+    if(node->left == nullptr || node->right == nullptr)
+        return;
+
+    //printf("(*node)->left = %p\n", (*node)->left);
+    //printf("(*node)->right = %p\n", (*node)->right);
+
+    if(equal_double(node->left->value, 0) && equal_double(node->right->value, 0))
+    {
+        delete_tree_without_root(node);
+        push_node(node, NUMBER, 0);
+        return;
+    }
+    if(node->type == MUL && (equal_double(node->left->value, 0) || equal_double(node->right->value, 0)))
+    {
+        delete_tree_without_root(node);
+        push_node(node, NUMBER, 0);
+        return;
+    }
+    if(is_number_tree(node))
+    {
+        double num = eval(node);
+        delete_tree_without_root(node);
+        push_node(node, NUMBER, num);
+    }
+    //printf("Я ёбанная параша(функция оптимизации) передаю %p и %p\n", &((*node)->left), &((*node)->right));
+
+    if(node->left == nullptr || node->right == nullptr)
+        return;
+
+    optimizate_tree(node->left);
+    optimizate_tree(node->right);
+}
+
+static int equal_double(double a, double b)
+{
+    return fabs(a - b) < 1e-7;
+}
+
+bool is_number_tree(struct Node* node)
+{
+
+    /*switch(node->type)
+    {
+        case NUMBER:    break;
+        case VAR:   is_number = false; break;
+
+        case ADD: case SUB: case MUL: case DIV:
+        {
+            is_number = is_number_tree(node->left);
+            if(is_number == true)
+                is_number = is_number_tree(node->right);
+            break;
+        }
+        default:
+            return false;
+    }
+    return is_number;*/
+
+    switch(node->type)
+    {
+        case NUMBER: return true;
+
+        case VAR: return false;
+
+        case ADD: case SUB: case MUL: case DIV:
+            return is_number_tree(node->left) && is_number_tree(node->right);
+
+        default: return false;
+
+    }
+    return false;
+}
+

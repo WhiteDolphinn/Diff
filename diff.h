@@ -10,6 +10,7 @@ enum Type{
     SUB = '-',
     MUL = '*',
     DIV = '/',
+    POW = '^',
     VAR = 'x',
 };
 

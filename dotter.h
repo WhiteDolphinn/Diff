@@ -3,6 +3,7 @@
 #include <time.h>
 #include "log.h"
 
+
 void graph_start();
 void graph_add_dot(void* address, double value, int type, void* left, void* right, const char* fillcolor);
 void graph_add_root(void* address);
@@ -10,18 +11,25 @@ void graph_add_arrow(void* address1, void* address2, const char* color);
 void graph_end();
 static char* get_dot_file_name();
 static void close_log_file_dot();
+static void print_graph();
 
 void graph_start()
 {
-    fprintf(get_log_file(".dot"), "digraph {\n\n");
-    //fprintf(get_log_file(".dot"), "rankdir=\"LR\";");
+    static bool is_started = false;
+
+    if(is_started == false)
+    {
+        is_started = true;
+        fprintf(get_log_file(".dot"), "digraph {\n\n");
+        //fprintf(get_log_file(".dot"), "rankdir=\"LR\";");
+    }
 }
 
 void graph_add_dot(void* address, double value, int type, void* left, void* right, const char* fillcolor)
 {
     if(type == NUMBER)
         fprintf(get_log_file(".dot"), "node%p [shape = Mrecord, fillcolor = \"%s\",style = filled, color = \"#000000\", label = \"{value = %lf | type = %d | address = %p | left = %p | right = %p}\"];\n", address, fillcolor, value, type, address, left, right);
-    else if(type == ADD || type == SUB || type == MUL || type == DIV)
+    else if(type == ADD || type == SUB || type == MUL || type == DIV || type == POW)
         fprintf(get_log_file(".dot"), "node%p [shape = Mrecord, fillcolor = \"%s\",style = filled, color = \"#000000\", label = \"{type = %c | address = %p | left = %p | right = %p}\"];\n", address, fillcolor, type, address, left, right);
     else
     {
@@ -42,12 +50,21 @@ void graph_add_arrow(void* address1, void* address2, const char* color)
 
 void graph_end()
 {
+    static bool is_ended = false;
+    if(is_ended == false)
+    {
+        is_ended = true;
+    //atexit(close_log_file_dot);
+        atexit(print_graph);
+    }
+}
+
+static void print_graph()
+{
     fprintf(get_log_file(".dot"), "\n}\n");
-
-    char cmd[200] = "";
-    char* dot_file_name = get_dot_file_name();
-
     close_log_file_dot();
+    char cmd[200] = "";
+    static char* dot_file_name = get_dot_file_name();
 
     sprintf(cmd, "dot %s -Tpng -o 3.png\n", dot_file_name);
     printf("%s", cmd);
@@ -55,6 +72,7 @@ void graph_end()
 
     free(dot_file_name);
 }
+
 
 static char* get_dot_file_name()
 {

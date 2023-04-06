@@ -1,4 +1,5 @@
 #include <ctype.h>
+#include <math.h>
 #include "diff.h"
 #include "text.h"
 #include "tree_soft.h"
@@ -30,6 +31,8 @@ double eval(struct Node* node)
             return eval(node->left) * eval(node->right);
         case DIV:
             return eval(node->left) / eval(node->right);
+        case POW:
+            return pow(eval(node->left), eval(node->right));
         default:
             return 14888841;
     }
@@ -66,7 +69,7 @@ static void read_node_preorder(char* expr, Node** root)
 
     switch(expr[index])
     {
-        case '+': case '*': case '/':
+        case '+': case '*': case '/': case '^':
         {
             read_sign_preorder(expr, root, &index);
             break;
@@ -248,7 +251,7 @@ static bool read_sign_inorder(char* expr, Node** root, int* index)
 {
     skip_spaces(expr, index);
 
-    if(expr[*index] != '+' && expr[*index] != '-' && expr[*index] != '*' && expr[*index] != '/')
+    if(expr[*index] != '+' && expr[*index] != '-' && expr[*index] != '*' && expr[*index] != '/' && expr[*index] != '^')
     {
         printf("Error in possition %d. Symbol is '%c' but expected '=', '-', '*', '/'\n", *index, expr[*index]);
         return false;

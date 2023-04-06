@@ -69,7 +69,7 @@ static void node_print(struct Node* node)
 
     if(node->type == NUMBER)
         graph_add_dot(node, node->value, node->type, node->left, node->right, "#FFD0D0");
-    else if(node->type == ADD || node->type == SUB || node->type == MUL || node->type == DIV)
+    else if(node->type == ADD || node->type == SUB || node->type == MUL || node->type == DIV || node->type == POW)
         graph_add_dot(node, node->value, node->type, node->left, node->right, "#D0FFD0");
     else if(node->type == VAR)
         graph_add_dot(node, node->value, node->type, node->left, node->right, "#D0D0FF");
@@ -98,10 +98,11 @@ void tree_print_inorder(struct Node* tree)
     {
         switch((int)tree->value)
         {
-            case 1:   printf("+ "); break;
-            case 2:   printf("- "); break;
-            case 3:   printf("* "); break;
-            case 4:   printf("/ "); break;
+            case ADD:   printf("+ "); break;
+            case SUB:   printf("- "); break;
+            case MUL:   printf("* "); break;
+            case DIV:   printf("/ "); break;
+            case POW:   printf("^ "); break;
             default:  printf("bebra\n"); break;
         }
     }
@@ -133,18 +134,39 @@ void optimizate_tree(struct Node* node)
         push_node(node, NUMBER, 0);
         return;
     }
+
     if(node->type == MUL && (equal_double(node->left->value, 0) || equal_double(node->right->value, 0)))
     {
         delete_tree_without_root(node);
         push_node(node, NUMBER, 0);
         return;
     }
+
+    if((node->type == MUL || node->type == DIV) && equal_double(node->right->value, 1))
+    {
+        int left_node_type = node->left->type;
+        double left_node_value = node->left->value;
+        delete_tree_without_root(node);
+        push_node(node, left_node_type, left_node_value);
+        return;
+    }
+
+    if(node->type == MUL &&equal_double(node->left->value, 1))
+    {
+        int right_node_type = node->right->type;
+        double right_node_value = node->right->value;
+        delete_tree_without_root(node);
+        push_node(node, right_node_type, right_node_value);
+        return;
+    }
+
     if(is_number_tree(node))
     {
         double num = eval(node);
         delete_tree_without_root(node);
         push_node(node, NUMBER, num);
     }
+
     //printf("Я ёбанная параша(функция оптимизации) передаю %p и %p\n", &((*node)->left), &((*node)->right));
 
     if(node->left == nullptr || node->right == nullptr)
@@ -162,30 +184,13 @@ static int equal_double(double a, double b)
 bool is_number_tree(struct Node* node)
 {
 
-    /*switch(node->type)
-    {
-        case NUMBER:    break;
-        case VAR:   is_number = false; break;
-
-        case ADD: case SUB: case MUL: case DIV:
-        {
-            is_number = is_number_tree(node->left);
-            if(is_number == true)
-                is_number = is_number_tree(node->right);
-            break;
-        }
-        default:
-            return false;
-    }
-    return is_number;*/
-
     switch(node->type)
     {
         case NUMBER: return true;
 
         case VAR: return false;
 
-        case ADD: case SUB: case MUL: case DIV:
+        case ADD: case SUB: case MUL: case DIV: case POW:
             return is_number_tree(node->left) && is_number_tree(node->right);
 
         default: return false;

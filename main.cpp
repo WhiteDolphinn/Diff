@@ -14,11 +14,11 @@ int main()
     }
 
     read_expession_inorder(source_file, &n1);
-    //tree_print(n1);
+    tree_print(n1);
     //printf("eval = %lf\n", eval(n1));
 
     struct Node* diff_n = diff(n1);
-    //optimizate_tree(diff_n);
+    optimizate_tree(diff_n);
     tree_print(diff_n);
     printf("eval_diff = %lf\n", eval(diff_n));
     delete_tree(n1);

@@ -35,6 +35,8 @@ double eval(struct Node* node)
             return eval(node->left) / eval(node->right);
         case POW:
             return pow(eval(node->left), eval(node->right));
+        case LN:
+            return log(eval(node->left));
         default:
             return 14888841;
     }
@@ -269,8 +271,34 @@ static bool read_sign_inorder(char* expr, Node** root, int* index)
 static void read_variable_inorder(char* expr, Node** root, int* index)
 {
     skip_spaces(expr, index);
-    push_node(*root, VAR, expr[*index]);
-    (*index)++;
+
+    if(expr[(*index) + 1] == ')' || isspace(expr[(*index) + 1]))
+    {
+        push_node(*root, VAR, expr[*index]);
+        (*index)++;
+        skip_spaces(expr, index);
+
+        return;
+    }
+
+    char func[MAX_STR_LENGTH] = {};
+    sscanf(expr + (*index), "%[^(]", func);
+    printf("%s\n", func);
+
+    if(!stricmp(func, "ln"))/////////////сделать кодогенерацию
+    {
+        push_node(*root, LN, LN);
+
+        for(size_t i = 0; i < strlen(func); i++)
+            (*index)++;
+
+        read_node_inorder(expr, &((*root)->left));
+        (*root)->right = nullptr;
+
+        skip_spaces(expr, index);
+        return;
+    }
+
     skip_spaces(expr, index);
 }
 
@@ -372,4 +400,5 @@ static struct Node* diff_pow(struct Node* node)
 
     struct Node* u_pow_v = pow(cl, cr);
     struct Node* diffv_lnu = mul(dr, );*/
+    return nullptr;
 }

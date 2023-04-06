@@ -69,7 +69,7 @@ static void node_print(struct Node* node)
 
     if(node->type == NUMBER)
         graph_add_dot(node, node->value, node->type, node->left, node->right, "#FFD0D0");
-    else if(node->type == ADD || node->type == SUB || node->type == MUL || node->type == DIV || node->type == POW)
+    else if(node->type == ADD || node->type == SUB || node->type == MUL || node->type == DIV || node->type == POW || node->type == LN)
         graph_add_dot(node, node->value, node->type, node->left, node->right, "#D0FFD0");
     else if(node->type == VAR)
         graph_add_dot(node, node->value, node->type, node->left, node->right, "#D0D0FF");
@@ -204,6 +204,9 @@ bool is_number_tree(struct Node* node)
 
         case ADD: case SUB: case MUL: case DIV: case POW:
             return is_number_tree(node->left) && is_number_tree(node->right);
+
+        case LN:
+            return is_number_tree(node->left);
 
         default: return false;
 

@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-//#include <ctype.h>
+#include <ctype.h>
 #include "text.h"
 
 size_t num_of_symbols(const char* name_of_file)
@@ -41,4 +41,17 @@ char* text_reader(FILE* file, const char* name_of_file)
 
     text = temp;
     return text;
+}
+
+int stricmp(const char* source1, const char* source2)
+{
+    char lower_source1[MAX_STR_LENGTH] = "";
+    for(int i = 0; source1[i]; i++)
+        lower_source1[i] = (char)tolower(source1[i]);
+
+    char lower_source2[MAX_STR_LENGTH] = "";
+    for(int i = 0; source2[i]; i++)
+        lower_source2[i] = (char)tolower(source2[i]);
+
+    return strcmp(lower_source1, lower_source2);
 }

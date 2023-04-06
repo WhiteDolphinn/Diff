@@ -29,12 +29,12 @@ void graph_add_dot(void* address, double value, int type, void* left, void* righ
 {
     if(type == NUMBER)
         fprintf(get_log_file(".dot"), "node%p [shape = Mrecord, fillcolor = \"%s\",style = filled, color = \"#000000\", label = \"{value = %lf | type = %d | address = %p | left = %p | right = %p}\"];\n", address, fillcolor, value, type, address, left, right);
-    else if(type == ADD || type == SUB || type == MUL || type == DIV || type == POW)
+    else if(type == ADD || type == SUB || type == MUL || type == DIV || type == POW || type == LN)
         fprintf(get_log_file(".dot"), "node%p [shape = Mrecord, fillcolor = \"%s\",style = filled, color = \"#000000\", label = \"{type = %c | address = %p | left = %p | right = %p}\"];\n", address, fillcolor, type, address, left, right);
-    else
-    {
+    else if(type == VAR)
         fprintf(get_log_file(".dot"), "node%p [shape = Mrecord, fillcolor = \"%s\",style = filled, color = \"#000000\", label = \"{value = %c | type = var | address = %p | left = %p | right = %p}\"];\n", address, fillcolor, (char)value, address, left, right);
-    }
+    else
+        fprintf(get_log_file(".dot"), "node%p [shape = Mrecord, fillcolor = \"%s\",style = filled, color = \"#000000\", label = \"{value = %lf | type = unknown | address = %p | left = %p | right = %p}\"];\n", address, fillcolor, value, address, left, right);
 }
 
 void graph_add_root(void* address)

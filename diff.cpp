@@ -3,6 +3,7 @@
 #include "diff.h"
 #include "text.h"
 #include "tree_soft.h"
+#include "dsl.h"
 
 static void read_node_preorder(char* expr, Node** root);
 static void read_node_inorder(char* expr, Node** root);
@@ -281,13 +282,13 @@ struct Node* diff(struct Node* node)
         case NUMBER:    return create_node(NUMBER, 0);
         case ADD:
         {
-            struct Node* answer = create_node(ADD, ADD, diff(node->left), diff(node->right));
+            struct Node* answer = add(diff(node->left), diff(node->right));
             optimizate_tree(answer);
             return answer;
         }
         case SUB:
         {
-            struct Node* answer = create_node(SUB, SUB, diff(node->left), diff(node->right));
+            struct Node* answer = sub(diff(node->left), diff(node->right));
             optimizate_tree(answer);
             return answer;
         }
@@ -297,12 +298,11 @@ struct Node* diff(struct Node* node)
             struct Node* cr = copy_node(node->right);
             struct Node* dl = diff(node->left);
             struct Node* dr = diff(node->right);
-            struct Node* left_part = create_node(MUL, MUL, cl, dr);
-            struct Node* right_part = create_node(MUL, MUL, dl, cr);
-            struct Node* branch = create_node(ADD, ADD, left_part, right_part);
-            optimizate_tree(branch);
+
+            struct Node* answer = add(mul(cl, dr), mul(dl, cr));
+            optimizate_tree(answer);
             //tree_print(branch);
-            return branch;
+            return answer;
         }
 
         case DIV:
@@ -311,11 +311,10 @@ struct Node* diff(struct Node* node)
             struct Node* cr = copy_node(node->right);
             struct Node* dl = diff(node->left);
             struct Node* dr = diff(node->right);
-            struct Node* r_2 = create_node(MUL, MUL, copy_node(node->right), copy_node(node->right));
-            struct Node* first_part = create_node(MUL, MUL, dl, cr);
-            struct Node* second_part = create_node(MUL, MUL, cl, dr);
-            struct Node* third_part = create_node(SUB, SUB, first_part, second_part);
-            struct Node* answer = create_node(DIV, DIV, third_part, r_2);
+            struct Node* r_2 = mul(copy_node(node->right), copy_node(node->right));
+
+            struct Node* first_part = sub(mul(dl, cr), mul(cl, dr));
+            struct Node* answer = div(first_part, r_2);
             optimizate_tree(answer);
             return answer;
         }

@@ -14,6 +14,8 @@ static struct Node* diff_mul(struct Node* node);
 static struct Node* diff_div(struct Node* node);
 static struct Node* diff_pow(struct Node* node);
 static struct Node* diff_ln(struct Node* node);
+static struct Node* diff_sin(struct Node* node);
+static struct Node* diff_cos(struct Node* node);
 
 double eval(struct Node* node)
 {
@@ -37,6 +39,8 @@ double eval(struct Node* node)
             return pow(eval(node->left), eval(node->right));
         case LN:
             return log(eval(node->left));
+        case SIN:
+            return sin(eval(node->left));
         default:
             return 14888841;
     }
@@ -155,6 +159,22 @@ static struct Node* diff_ln(struct Node* node)
 {
     struct Node* cnode = copy_node(node->left);
     struct Node* answer = div(diff(node->left), cnode);
+    optimizate_tree(answer);
+    return answer;
+}
+
+static struct Node* diff_sin(struct Node* node)
+{
+    struct Node* first_part = cr_cos(node->left);
+    struct Node* answer = mul(first_part, diff(node->left));
+    optimizate_tree(answer);
+    return answer;
+
+}
+static struct Node* diff_cos(struct Node* node)
+{
+    struct Node* first_part = mul(num(-1), cr_sin(node->left));
+    struct Node* answer = mul(first_part, diff(node->left));
     optimizate_tree(answer);
     return answer;
 }

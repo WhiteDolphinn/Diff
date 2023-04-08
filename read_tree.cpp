@@ -13,6 +13,8 @@ static void read_variable_inorder(char* expr, Node** root, int* index);
 
 static void empty_func(char* expr, Node** root, int* index, char* func);
 static void push_ln(char* expr, Node** root, int* index, char* func);
+static void push_sin(char* expr, Node** root, int* index, char* func);
+static void push_cos(char* expr, Node** root, int* index, char* func);
 
 void read_expession_preorder(FILE* source_file, Node** root)
 {
@@ -290,5 +292,38 @@ static void push_ln(char* expr, Node** root, int* index, char* func)
 
     skip_spaces(expr, index);
     return;
+}
 
+static void push_sin(char* expr, Node** root, int* index, char* func)
+{
+    if(stricmp(func, "sin"))
+        return;
+
+    push_node(*root, SIN, SIN);
+
+    for(size_t i = 0; i < strlen(func); i++)
+        (*index)++;
+
+    read_node_inorder(expr, &((*root)->left));
+    (*root)->right = nullptr;
+
+    skip_spaces(expr, index);
+    return;
+}
+
+static void push_cos(char* expr, Node** root, int* index, char* func)
+{
+    if(stricmp(func, "cos"))
+        return;
+
+    push_node(*root, COS, COS);
+
+    for(size_t i = 0; i < strlen(func); i++)
+        (*index)++;
+
+    read_node_inorder(expr, &((*root)->left));
+    (*root)->right = nullptr;
+
+    skip_spaces(expr, index);
+    return;
 }

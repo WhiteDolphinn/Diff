@@ -152,7 +152,22 @@ static struct Node* diff_pow(struct Node* node)
         return answer;
     }
 
-    return nullptr;
+
+    /*struct Node* cu = copy_node(node->left);
+    struct Node* cv = copy_node(node->right);
+    struct Node* du = diff(node->left);
+    struct Node* dv = diff(node->right);*/
+
+    struct Node* u_pow_v = pow(copy_node(node->left), copy_node(node->right));
+   // tree_print(u_pow_v);
+    struct Node* dv_lnu = mul(diff(node->right), ln(node->left));
+    //tree_print(dv_lnu);
+    struct Node* v_mul_du_div_u = mul(div(copy_node(node->right), copy_node(node->left)), diff(node->left));
+    //tree_print(v_mul_du_div_u);
+
+    struct Node* answer = mul(u_pow_v, add(dv_lnu, v_mul_du_div_u));
+    optimizate_tree(answer);
+    return answer;
 }
 
 static struct Node* diff_ln(struct Node* node)

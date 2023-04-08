@@ -46,7 +46,7 @@ struct Node* num(double number)
 
 struct Node* ln(struct Node* node)
 {
-    return create_node(LN, LN, node);
+    return create_node(LN, LN, copy_node(node));
 }
 
 struct Node* cr_sin(struct Node* node)

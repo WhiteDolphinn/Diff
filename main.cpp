@@ -19,12 +19,12 @@ int main()
     tree_print(n1);
     printf("eval = %lf\n", eval(n1));
 
-   // struct Node* diff_n = diff(n1);
-   // optimizate_tree(diff_n);
-    //tree_print(diff_n);
-    //printf("eval_diff = %lf\n", eval(diff_n));
+    struct Node* diff_n = diff(n1);
+    optimizate_tree(diff_n);
+    tree_print(diff_n);
+    printf("eval_diff = %lf\n", eval(diff_n));
     delete_tree(n1);
-    //delete_tree(diff_n);
+    delete_tree(diff_n);
     fclose(source_file);
 
     return 0;

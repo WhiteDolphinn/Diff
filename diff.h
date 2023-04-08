@@ -4,16 +4,23 @@
 #include "tree_soft.h"
 #include <stdio.h>
 
+#define DEFFUNC(SYMB, FUNC, PUSH, DIFF)\
+    FUNC = SYMB,
+
 enum Type{
-    NUMBER = 0,
+    /*NUMBER = 0,
     ADD = '+',
     SUB = '-',
     MUL = '*',
     DIV = '/',
     POW = '^',
     VAR = 'x',
-    LN = 'l'
+    LN = 'l'*/
+    #include "diff_funcs.h"
+    #undef DEFFUNC
 };
+
+
 
 double eval(struct Node* node);
 void read_expession_preorder(FILE* source_file, Node** root);

@@ -13,7 +13,18 @@ static void read_sign_preorder(char* expr, Node** root, int* index);
 static bool read_sign_inorder(char* expr, Node** root, int* index);
 static void skip_spaces(char* expr , int* index);
 static void read_variable_inorder(char* expr, Node** root, int* index);
+
+static void empty_func(char* expr, Node** root, int* index, char* func);
+static void push_ln(char* expr, Node** root, int* index, char* func);
+
+static struct Node* diff_var(struct Node* node);
+static struct Node* diff_number(struct Node* node);
+static struct Node* diff_add(struct Node* node);
+static struct Node* diff_sub(struct Node* node);
+static struct Node* diff_mul(struct Node* node);
+static struct Node* diff_div(struct Node* node);
 static struct Node* diff_pow(struct Node* node);
+static struct Node* diff_ln(struct Node* node);
 
 double eval(struct Node* node)
 {
@@ -285,7 +296,7 @@ static void read_variable_inorder(char* expr, Node** root, int* index)
     sscanf(expr + (*index), "%[^(]", func);
     printf("%s\n", func);
 
-    if(!stricmp(func, "ln"))/////////////сделать кодогенерацию
+   /* if(!stricmp(func, "ln"))/////////////сделать кодогенерацию
     {
         push_node(*root, LN, LN);
 
@@ -297,7 +308,18 @@ static void read_variable_inorder(char* expr, Node** root, int* index)
 
         skip_spaces(expr, index);
         return;
-    }
+    }*/
+
+    void (*push_func)(char*, Node**, int*, char*) = empty_func;
+
+    #define DEFFUNC(SYMB, FUNC, PUSH, DIFF) \
+        push_func = PUSH;                   \
+        push_func(expr, root, index, func); \
+
+    #include "diff_funcs.h"
+
+    #undef DEFFUNC
+
 
     skip_spaces(expr, index);
 }
@@ -307,7 +329,7 @@ struct Node* diff(struct Node* node)
     //optimizate_tree(node);
     switch(node->type)
     {
-        case VAR:       return num(1);
+        /*case VAR:       return num(1);
         case NUMBER:    return num(0);
         case ADD:
         {
@@ -355,12 +377,81 @@ struct Node* diff(struct Node* node)
             return answer;
         }
 
+        case LN:
+        {
+            struct Node* cnode = copy_node(node->left);
+            struct Node* answer = div(diff(node->left), cnode);
+            optimizate_tree(answer);
+            return answer;
+        }*/
+        struct Node* (*diff_func)(struct Node*); //////hz
+
+        #define DEFFUNC(SYMB, FUNC, PUSH, DIFF)         \
+            case FUNC:                                  \
+            {                                           \
+                diff_func = DIFF;                       \
+                struct Node* answer = diff_func(node);  \
+                optimizate_tree(answer);                \
+                return answer;                          \
+            }                                           \
+
+        #include "diff_funcs.h"
+
+        #undef DEFFUNC
+
         default:
         {
             printf("Uncknown type: %d  (%c)\n", node->type, (char)node->type);
             return nullptr;
         }
     }
+}
+
+static struct Node* diff_var(struct Node* node)
+{
+    return num(1);
+}
+static struct Node* diff_number(struct Node* node)
+{
+    return num(0);
+}
+static struct Node* diff_add(struct Node* node)
+{
+    struct Node* answer = add(diff(node->left), diff(node->right));
+    optimizate_tree(answer);
+    return answer;
+}
+static struct Node* diff_sub(struct Node* node)
+{
+    struct Node* answer = sub(diff(node->left), diff(node->right));
+    optimizate_tree(answer);
+    return answer;
+}
+static struct Node* diff_mul(struct Node* node)
+{
+    struct Node* cl = copy_node(node->left);
+    struct Node* cr = copy_node(node->right);
+    struct Node* dl = diff(node->left);
+    struct Node* dr = diff(node->right);
+
+    struct Node* answer = add(mul(cl, dr), mul(dl, cr));
+    optimizate_tree(answer);
+    //tree_print(branch);
+    return answer;
+}
+
+static struct Node* diff_div(struct Node* node)
+{
+    struct Node* cl = copy_node(node->left);
+    struct Node* cr = copy_node(node->right);
+    struct Node* dl = diff(node->left);
+    struct Node* dr = diff(node->right);
+    struct Node* r_2 = mul(copy_node(node->right), copy_node(node->right));
+
+    struct Node* first_part = sub(mul(dl, cr), mul(cl, dr));
+    struct Node* answer = div(first_part, r_2);
+    optimizate_tree(answer);
+    return answer;
 }
 
 static struct Node* diff_pow(struct Node* node)
@@ -401,4 +492,35 @@ static struct Node* diff_pow(struct Node* node)
     struct Node* u_pow_v = pow(cl, cr);
     struct Node* diffv_lnu = mul(dr, );*/
     return nullptr;
+}
+
+static struct Node* diff_ln(struct Node* node)
+{
+    struct Node* cnode = copy_node(node->left);
+    struct Node* answer = div(diff(node->left), cnode);
+    optimizate_tree(answer);
+    return answer;
+}
+
+static void empty_func(char* expr, Node** root, int* index, char* func)
+{
+    return;
+}
+
+static void push_ln(char* expr, Node** root, int* index, char* func)
+{
+    if(stricmp(func, "ln"))
+        return;
+
+    push_node(*root, LN, LN);
+
+    for(size_t i = 0; i < strlen(func); i++)
+        (*index)++;
+
+    read_node_inorder(expr, &((*root)->left));
+    (*root)->right = nullptr;
+
+    skip_spaces(expr, index);
+    return;
+
 }

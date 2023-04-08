@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "tree_soft.h"
+#include "read_tree.h"
 #include "diff.h"
 
 int main()

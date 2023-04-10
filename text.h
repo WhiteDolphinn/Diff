@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#define MAX_STR_LENGTH 300
+#define MAX_STR_LENGTH 2048
 
 size_t num_of_symbols(const char* name_of_file);
 char* text_reader(FILE* file, const char* name_of_file);

@@ -20,4 +20,6 @@ void optimizate_tree(struct Node* node);
 bool is_number_tree(struct Node* node);
 void merge_nodes(struct Node* in_node, struct Node* out_node);
 
+int equal_double(double a, double b);
+
 #endif

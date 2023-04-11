@@ -36,13 +36,51 @@ double eval(struct Node* node)
         case MUL:
             return eval(node->left) * eval(node->right);
         case DIV:
+        {
+            double right_val = eval(node->right);
+            if(equal_double(right_val, 0))
+            {
+                printf("division by zero!\n");
+                return 14888841;
+            }
             return eval(node->left) / eval(node->right);
+        }
         case POW:
             return pow(eval(node->left), eval(node->right));
         case LN:
-            return log(eval(node->left));
+        {
+            double val = eval(node->left);
+            if(equal_double(val, 0))
+            {
+                printf("ln(0) = inf\n");
+                return 14888841;
+            }
+            return log(val);
+        }
         case SIN:
             return sin(eval(node->left));
+        case COS:
+            return cos(eval(node->left));
+        case TAN:
+        {
+            double val = eval(node->left);
+            if(equal_double(cos(val), 0))
+            {
+                printf("tan(pi/2 + 2 pi k = inf\n)");
+                return 14888841;
+            }
+            return tan(val);
+        }
+        case COT:
+        {
+            double val = eval(node->left);
+            if(equal_double(sin(val), 0))
+            {
+                printf("cot2 pi k = inf\n");
+                return 14888841;
+            }
+            return 1/tan(val);
+        }
         default:
             return 14888841;
     }

@@ -7,7 +7,6 @@
 #include "dotter.h"
 
 static void node_print(struct Node* node);
-static int equal_double(double a, double b);
 
 struct Node* create_node(int type, double value, struct Node* left, struct Node* right)
 {
@@ -122,53 +121,8 @@ struct Node* copy_node(struct Node* node)
 
 void optimizate_tree(struct Node* node)
 {
-    if(node->left == nullptr || node->right == nullptr)
+    if(node->left == nullptr)
         return;
-
-    //printf("(*node)->left = %p\n", (*node)->left);
-    //printf("(*node)->right = %p\n", (*node)->right);
-
-    if(equal_double(node->left->value, 0) && equal_double(node->right->value, 0))
-    {
-        delete_tree_without_root(node);
-        push_node(node, NUMBER, 0);
-        return;
-    }
-
-    if((node->type == ADD || node->type == SUB) && equal_double(node->right->value, 0))
-    {
-        delete_tree(node->right);
-        merge_nodes(node, node->left);
-        return;
-    }
-
-    if(node->type == ADD && equal_double(node->left->value, 0))
-    {
-        delete_tree(node->left);
-        merge_nodes(node, node->right);
-        return;
-    }
-
-    if(node->type == MUL && (equal_double(node->left->value, 0) || equal_double(node->right->value, 0)))
-    {
-        delete_tree_without_root(node);
-        push_node(node, NUMBER, 0);
-        return;
-    }
-
-    if((node->type == MUL || node->type == DIV || node->type == POW) && equal_double(node->right->value, 1))
-    {
-        delete_tree(node->right);
-        merge_nodes(node, node->left);
-        return;
-    }
-
-    if(node->type == MUL && equal_double(node->left->value, 1))
-    {
-        delete_tree(node->left);
-        merge_nodes(node, node->right);
-        return;
-    }
 
     if(is_number_tree(node))
     {
@@ -177,16 +131,90 @@ void optimizate_tree(struct Node* node)
         push_node(node, NUMBER, num);
     }
 
+    if(node->right != nullptr)
+    {
+        if(equal_double(node->left->value, 0) && equal_double(node->right->value, 0))
+        {
+            delete_tree_without_root(node);
+            push_node(node, NUMBER, 0);
+            return;
+        }
+
+        if((node->type == ADD || node->type == SUB) && equal_double(node->right->value, 0))
+        {
+            delete_tree(node->right);
+            merge_nodes(node, node->left);
+            return;
+        }
+
+        if(node->type == ADD && equal_double(node->left->value, 0))
+        {
+            delete_tree(node->left);
+            merge_nodes(node, node->right);
+            return;
+        }
+
+        if(node->type == MUL && (equal_double(node->left->value, 0) || equal_double(node->right->value, 0)))
+        {
+            delete_tree_without_root(node);
+            push_node(node, NUMBER, 0);
+            return;
+        }
+
+        if((node->type == MUL || node->type == DIV || node->type == POW) && equal_double(node->right->value, 1))
+        {
+            delete_tree(node->right);
+            merge_nodes(node, node->left);
+            return;
+        }
+
+        if(node->type == MUL && equal_double(node->left->value, 1))
+        {
+            delete_tree(node->left);
+            merge_nodes(node, node->right);
+            return;
+        }
+        if(node->type == POW && equal_double(node->right->value, 0))
+        {
+            delete_tree_without_root(node);
+            push_node(node, NUMBER, 1);
+            return;
+        }
+        if(node->type == POW && equal_double(node->right->value, 1))
+        {
+            delete_tree(node->right);
+            merge_nodes(node, node->left);
+            return;
+        }
+    }
+    else
+    {
+        if(node->type == LN && node->left->type == POW)
+        {
+            struct Node* stepen = copy_node(node->left->right);
+            struct Node* osnov = copy_node(node->left->left);
+            delete_tree_without_root(node);
+            push_node(node, MUL, MUL);
+
+            node->left = create_node(257, 257);
+            node->right = create_node(LN, LN);
+            node->right->left = create_node(257, 257);
+
+            merge_nodes(node->left, stepen);
+            merge_nodes(node->right->left, osnov);
+            return;
+        }
+    }
     //printf("Я ёбанная параша(функция оптимизации) передаю %p и %p\n", &((*node)->left), &((*node)->right));
 
-    if(node->left == nullptr || node->right == nullptr)
-        return;
+    if(node->left != nullptr)
+        optimizate_tree(node->left);
 
-    optimizate_tree(node->left);
-    optimizate_tree(node->right);
+    if(node->right != nullptr)
+        optimizate_tree(node->right);
 }
 
-static int equal_double(double a, double b)
+int equal_double(double a, double b)
 {
     return fabs(a - b) < 1e-7;
 }
@@ -205,7 +233,7 @@ bool is_number_tree(struct Node* node)
         case ADD: case SUB: case MUL: case DIV: case POW:
             return is_number_tree(node->left) && is_number_tree(node->right);
 
-        case LN:
+        case LN: case SIN: case COS: case TAN: case COT:
             return is_number_tree(node->left);
 
         default: return false;

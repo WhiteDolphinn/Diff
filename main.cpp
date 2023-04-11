@@ -18,7 +18,7 @@ int main()
 
     optimizate_tree(n1);
     tree_print(n1);
-    //printf("eval = %lf\n", eval(n1));
+    printf("eval = %lf\n", eval(n1));
 
     struct Node* diff_n = diff(n1);
     optimizate_tree(diff_n);

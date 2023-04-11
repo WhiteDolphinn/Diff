@@ -1,6 +1,7 @@
 #ifndef DOTTER_H
 #define DOTTER_H
 #include <time.h>
+#include <string.h>
 #include "read_tree.h"
 #include "log.h"
 
@@ -30,6 +31,12 @@ void graph_add_dot(void* address, double value, int type, void* left, void* righ
 {
     char func_type[10] = "";
     func_to_str(type, func_type);
+
+    if(equal_double(value, 14888841))
+    {
+        fprintf(get_log_file(".dot"), "node%p [shape = Mrecord, fillcolor = \"#FF0000\",style = filled, color = \"#000000\", label = \"{value = %lf | type = %d | address = %p | left = %p | right = %p}\"];\n", address, value, type, address, left, right);
+        return;
+    }
 
     if(type == NUMBER)
         fprintf(get_log_file(".dot"), "node%p [shape = Mrecord, fillcolor = \"%s\",style = filled, color = \"#000000\", label = \"{value = %lf | type = %d | address = %p | left = %p | right = %p}\"];\n", address, fillcolor, value, type, address, left, right);

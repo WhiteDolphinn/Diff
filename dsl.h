@@ -13,6 +13,8 @@ struct Node* num(double number);
 struct Node* ln(struct Node* node);
 struct Node* cr_sin(struct Node* node);
 struct Node* cr_cos(struct Node* node);
+struct Node* cr_tan(struct Node* node);
+struct Node* cr_cot(struct Node* node);
 
 struct Node* add(struct Node* node1, struct Node* node2)
 {
@@ -57,6 +59,16 @@ struct Node* cr_sin(struct Node* node)
 struct Node* cr_cos(struct Node* node)
 {
     return create_node(COS, COS, copy_node(node));
+}
+
+struct Node* cr_tan(struct Node* node)
+{
+    return create_node(TAN, TAN, copy_node(node));
+}
+
+struct Node* cr_cot(struct Node* node)
+{
+    return create_node(COT, COT, copy_node(node));
 }
 
 #endif

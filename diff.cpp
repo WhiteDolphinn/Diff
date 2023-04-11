@@ -16,6 +16,8 @@ static struct Node* diff_pow(struct Node* node);
 static struct Node* diff_ln(struct Node* node);
 static struct Node* diff_sin(struct Node* node);
 static struct Node* diff_cos(struct Node* node);
+static struct Node* diff_tan(struct Node* node);
+static struct Node* diff_cot(struct Node* node);
 
 double eval(struct Node* node)
 {
@@ -51,6 +53,12 @@ double eval(struct Node* node)
 struct Node* diff(struct Node* node)
 {
     //optimizate_tree(node);
+    if(node == nullptr)
+    {
+        printf("Error in diff. (node == nullptr)\n");
+        return nullptr;
+    }
+
     switch(node->type)
     {
         struct Node* (*diff_func)(struct Node*); //////hz
@@ -78,10 +86,12 @@ struct Node* diff(struct Node* node)
 
 static struct Node* diff_var(struct Node* node)
 {
+    assert(node != nullptr);
     return num(1);
 }
 static struct Node* diff_number(struct Node* node)
 {
+    assert(node != nullptr);
     return num(0);
 }
 static struct Node* diff_add(struct Node* node)
@@ -152,12 +162,6 @@ static struct Node* diff_pow(struct Node* node)
         return answer;
     }
 
-
-    /*struct Node* cu = copy_node(node->left);
-    struct Node* cv = copy_node(node->right);
-    struct Node* du = diff(node->left);
-    struct Node* dv = diff(node->right);*/
-
     struct Node* u_pow_v = pow(copy_node(node->left), copy_node(node->right));
    // tree_print(u_pow_v);
     struct Node* dv_lnu = mul(diff(node->right), ln(node->left));
@@ -190,6 +194,20 @@ static struct Node* diff_cos(struct Node* node)
 {
     struct Node* first_part = mul(num(-1), cr_sin(node->left));
     struct Node* answer = mul(first_part, diff(node->left));
+    optimizate_tree(answer);
+    return answer;
+}
+
+static struct Node* diff_tan(struct Node* node)
+{
+    struct Node* answer = div(diff(node->left), pow(cr_cos(node->left), num(2)));
+    optimizate_tree(answer);
+    return answer;
+}
+
+static struct Node* diff_cot(struct Node* node)
+{
+    struct Node* answer = div(mul(num(-1), diff(node->left)), pow(cr_sin(node->left), num(2)));
     optimizate_tree(answer);
     return answer;
 }

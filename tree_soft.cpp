@@ -69,10 +69,10 @@ static void node_print(struct Node* node)
 
     if(node->type == NUMBER)
         graph_add_dot(node, node->value, node->type, node->left, node->right, "#FFD0D0");
-    else if(node->type == ADD || node->type == SUB || node->type == MUL || node->type == DIV || node->type == POW || node->type == LN || node->type == SIN || node->type == COS)
-        graph_add_dot(node, node->value, node->type, node->left, node->right, "#D0FFD0");
     else if(node->type == VAR)
         graph_add_dot(node, node->value, node->type, node->left, node->right, "#D0D0FF");
+    else if(is_func(node->type))
+        graph_add_dot(node, node->value, node->type, node->left, node->right, "#D0FFD0");
     else
         graph_add_dot(node, node->value, node->type, node->left, node->right, "#FF0000");
 

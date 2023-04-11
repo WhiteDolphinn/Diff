@@ -17,19 +17,19 @@ int main()
     read_expession_inorder(source_file, &n1);
 
     optimizate_tree(n1);
-   // tree_print(n1);
+    tree_print(n1);
     //printf("eval = %lf\n", eval(n1));
 
     struct Node* diff_n = diff(n1);
     optimizate_tree(diff_n);
-    struct Node* diff2_n = diff(diff_n);
-    optimizate_tree(diff2_n);
-    tree_print(diff2_n);
-    //tree_print(diff_n);
+    //struct Node* diff2_n = diff(diff_n);
+    //optimizate_tree(diff2_n);
+    tree_print(diff_n);
+    //tree_print(diff2_n);
     //printf("eval_diff = %lf\n", eval(diff_n));
     delete_tree(n1);
     delete_tree(diff_n);
-    delete_tree(diff2_n);
+    //delete_tree(diff2_n);
     fclose(source_file);
 
     return 0;

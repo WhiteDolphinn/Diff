@@ -12,9 +12,12 @@ static bool read_sign_inorder(char* expr, Node** root, int* index);
 static void read_variable_inorder(char* expr, Node** root, int* index);
 
 static void empty_func(char* expr, Node** root, int* index, char* func);
+static void push_one_argument_func(char* expr, Node** root, int* index, char* source, char func_symbol, const char* func);
 static void push_ln(char* expr, Node** root, int* index, char* func);
 static void push_sin(char* expr, Node** root, int* index, char* func);
 static void push_cos(char* expr, Node** root, int* index, char* func);
+static void push_tan(char* expr, Node** root, int* index, char* func);
+static void push_cot(char* expr, Node** root, int* index, char* func);
 
 void read_expession_preorder(FILE* source_file, Node** root)
 {
@@ -138,6 +141,11 @@ void read_expession_inorder(FILE* source_file, Node** root)
 {
     char expession[MAX_STR_LENGTH] = {};
 
+    if(root == nullptr)
+    {
+        printf("root == nullptr\n");
+        return;
+    }
 
     if(!fscanf(source_file, " %[^\n]", expession))
     {
@@ -145,7 +153,19 @@ void read_expession_inorder(FILE* source_file, Node** root)
         return;
     }
 
+    if(expession[MAX_STR_LENGTH - 1] != '\0')
+    {
+        printf("Переполение буфера expression\n");
+        return;
+    }
+
     read_node_inorder(expession, root);
+
+    /*if(is_correct_read == false)
+    {
+        printf("Ошибка в чтении выражения.\n");
+        delete_tree(*root);
+    }*/
 }
 
 static void read_node_inorder(char* expr, Node** root)
@@ -160,6 +180,7 @@ static void read_node_inorder(char* expr, Node** root)
     if(expr[index] != '(')
     {
         printf("Error in possition %d. Symbol is '%c' but expected '('\n", index, expr[index]);
+        is_correct_read = false;
         return;
     }
 
@@ -198,6 +219,7 @@ static void read_node_inorder(char* expr, Node** root)
     if(expr[index] != ')')
     {
         printf("Error in possition %d. Symbol is '%c' but expected ')'\n", index, expr[index]);
+        is_correct_read = false;
         return;
     }
 
@@ -254,7 +276,7 @@ static void read_variable_inorder(char* expr, Node** root, int* index)
         return;
     }
 
-    char func[MAX_STR_LENGTH] = {};
+    char func[MAX_FUNC_LENGTH] = {};
     sscanf(expr + (*index), "%[^(]", func);
     printf("%s\n", func);
 
@@ -274,56 +296,86 @@ static void read_variable_inorder(char* expr, Node** root, int* index)
 
 static void empty_func(char* expr, Node** root, int* index, char* func)
 {
+    assert(expr != nullptr);
+    assert(root != nullptr);
+    assert(index != nullptr);
+    assert(func != nullptr);
+    return;
+}
+
+static void push_one_argument_func(char* expr, Node** root, int* index, char* source, char func_symbol, const char* func)
+{
+    if(stricmp(source, func))
+        return;
+
+    push_node(*root, func_symbol, func_symbol);
+
+    for(size_t i = 0; i < strlen(func); i++)
+        (*index)++;
+
+    read_node_inorder(expr, &((*root)->left));
+    (*root)->right = nullptr;
+
+    skip_spaces(expr, index);
     return;
 }
 
 static void push_ln(char* expr, Node** root, int* index, char* func)
 {
-    if(stricmp(func, "ln"))
-        return;
-
-    push_node(*root, LN, LN);
-
-    for(size_t i = 0; i < strlen(func); i++)
-        (*index)++;
-
-    read_node_inorder(expr, &((*root)->left));
-    (*root)->right = nullptr;
-
-    skip_spaces(expr, index);
+    push_one_argument_func(expr, root, index, func, LN, "ln");
     return;
 }
 
 static void push_sin(char* expr, Node** root, int* index, char* func)
 {
-    if(stricmp(func, "sin"))
-        return;
-
-    push_node(*root, SIN, SIN);
-
-    for(size_t i = 0; i < strlen(func); i++)
-        (*index)++;
-
-    read_node_inorder(expr, &((*root)->left));
-    (*root)->right = nullptr;
-
-    skip_spaces(expr, index);
+    push_one_argument_func(expr, root, index, func, SIN, "sin");
     return;
+
 }
 
 static void push_cos(char* expr, Node** root, int* index, char* func)
 {
-    if(stricmp(func, "cos"))
-        return;
-
-    push_node(*root, COS, COS);
-
-    for(size_t i = 0; i < strlen(func); i++)
-        (*index)++;
-
-    read_node_inorder(expr, &((*root)->left));
-    (*root)->right = nullptr;
-
-    skip_spaces(expr, index);
+    push_one_argument_func(expr, root, index, func, COS, "cos");
     return;
+}
+
+
+static void push_tan(char* expr, Node** root, int* index, char* func)
+{
+    push_one_argument_func(expr, root, index, func, TAN, "tan");
+    return;
+}
+
+static void push_cot(char* expr, Node** root, int* index, char* func)
+{
+    push_one_argument_func(expr, root, index, func, COT, "cot");
+    return;
+}
+
+void func_to_str(int type, char* func)
+{
+    #define DEFFUNC(SYMBOL, FUNC, PUSH, DIFF)   \
+       if(SYMBOL == type)                       \
+       {                                        \
+            strcpy(func, #FUNC);                \
+            return;                             \
+       }                                        \
+
+    #include "diff_funcs.h"
+    #undef DEFFUNC
+
+    strcpy(func, "unknown");
+    return;
+}
+
+bool is_func(int type)
+{
+    #define DEFFUNC(SYMBOL, FUNC, PUSH, DIFF)   \
+        if(SYMBOL == type)                      \
+            return true;                        \
+
+    #include "diff_funcs.h"
+    #undef DEFFUNC
+
+    return false;
 }

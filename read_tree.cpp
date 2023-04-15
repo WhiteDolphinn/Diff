@@ -19,6 +19,11 @@ static void push_cos(char* expr, Node** root, int* index, char* func);
 static void push_tan(char* expr, Node** root, int* index, char* func);
 static void push_cot(char* expr, Node** root, int* index, char* func);
 
+static int get_g(char* expr, Node** root);
+static struct Node* get_n(char* expr, int* index);
+static struct Node* get_e(char* expr, int* index);
+static struct Node* get_t(char* expr, int* index);
+
 void read_expession_preorder(FILE* source_file, Node** root)
 {
     char expession[MAX_STR_LENGTH] = {};
@@ -378,4 +383,101 @@ bool is_func(int type)
     #undef DEFFUNC
 
     return false;
+}
+
+int read_expession_rec_descent(FILE* source_file, Node** root)
+{
+    char expession_with_spaces[MAX_STR_LENGTH] = {};
+    char expession_without_spaces[MAX_STR_LENGTH] = {};
+
+    if(root == nullptr)
+    {
+        printf("root == nullptr\n");
+        return ERROR_ROOT_POINTER;
+    }
+
+    if(!fscanf(source_file, " %[^\n]", expession_with_spaces))
+    {
+        printf("I can't read expession\n");
+        return ERROR_READ_EXPESSION;
+    }
+    if(expession_with_spaces[MAX_STR_LENGTH - 1] != '\0')
+    {
+        printf("Переполение буфера expression\n");
+        return ERROR_BUFFER_OVERFLOW;
+    }
+
+    int cur_exp_pos = 0;
+    for(int i = 0; expession_with_spaces[i] != '\0'; i++)
+        if(!isspace(expession_with_spaces[i]))
+            expession_without_spaces[cur_exp_pos++] = expession_with_spaces[i];
+
+    return get_g(expession_without_spaces, root);
+}
+
+
+static int get_g(char* expr, Node** root)
+{
+    int index = 0;
+    *root  = get_e(expr, &index);
+
+    if((*root)->type == SYNTAX_ERROR)
+        return (int)(*root)->value;
+
+    if(expr[index] != '\0')
+    {
+        printf("Syntax error in pos.%d. Symbol is %c\n", index, expr[index]);
+        return SYNTAX_ERROR_IN_GET_G;
+    }
+    return 0;
+}
+
+static struct Node* get_n(char* expr, int* index)
+{
+    int value = 0;
+    if(expr[*index] > '9' || expr[*index] < '0')
+    {
+        printf("Syntax error in pos.%d. Symbol is %c but expected number\n", *index, expr[*index]);
+        return create_node(SYNTAX_ERROR, SYNTAX_ERROR_IN_GET_N);
+    }
+
+    while(expr[*index] <= '9' && expr[*index] >= '0')
+    {
+        int value2 = expr[*index] - '0';
+        (*index)++;
+        value = 10 * value + value2;
+    }
+    return create_node(NUMBER, value);
+}
+
+static struct Node* get_e(char* expr, int* index)
+{
+    struct Node* answer = get_t(expr, index);
+    struct Node* cur_node = answer;
+
+    while(expr[*index] == '+' || expr[*index] == '-')
+    {
+        int op = expr[*index];
+        (*index)++;
+        cur_node = create_node(op, op, answer);
+        answer = cur_node;
+        answer->right = get_t(expr, index);
+    }
+    return answer;
+}
+
+static struct Node* get_t(char* expr, int* index)
+{
+    struct Node* answer = get_n(expr, index);
+    struct Node* cur_node = answer;
+
+    while(expr[*index] == '*' || expr[*index] == '/')
+    {
+        int op = expr[*index];
+        (*index)++;
+        cur_node = create_node(op, op, answer);
+        answer = cur_node;
+        answer->right = get_n(expr, index);
+    }
+    return answer;
 }

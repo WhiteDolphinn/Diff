@@ -23,6 +23,7 @@ static int get_g(char* expr, Node** root);
 static struct Node* get_n(char* expr, int* index);
 static struct Node* get_e(char* expr, int* index);
 static struct Node* get_t(char* expr, int* index);
+static struct Node* get_p(char* expr, int* index);
 
 void read_expession_preorder(FILE* source_file, Node** root)
 {
@@ -468,7 +469,7 @@ static struct Node* get_e(char* expr, int* index)
 
 static struct Node* get_t(char* expr, int* index)
 {
-    struct Node* answer = get_n(expr, index);
+    struct Node* answer = get_p(expr, index);
     struct Node* cur_node = answer;
 
     while(expr[*index] == '*' || expr[*index] == '/')
@@ -477,7 +478,24 @@ static struct Node* get_t(char* expr, int* index)
         (*index)++;
         cur_node = create_node(op, op, answer);
         answer = cur_node;
-        answer->right = get_n(expr, index);
+        answer->right = get_p(expr, index);
     }
     return answer;
+}
+
+static struct Node* get_p(char* expr, int* index)
+{
+    if(expr[*index] == '(')
+    {
+        (*index)++;
+        struct Node* answer = get_e(expr, index);
+
+        if(expr[*index] != ')')
+            printf("Syntax error in pos.%d. Symbol is %c but expected )", *index, expr[*index]);/////////////////////
+
+        (*index)++;
+        return answer;
+    }
+
+    return get_n(expr, index);
 }

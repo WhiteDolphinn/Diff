@@ -21,6 +21,7 @@ enum Errors{
     SYNTAX_ERROR_IN_GET_N = 5,
     SYNTAX_ERROR_IN_GET_E = 6,
     SYNTAX_ERROR_IN_GET_T = 7,
+    SYNTAX_ERROR_IN_GET_F = 8,
     SYNTAX_ERROR = 257,
 };
 

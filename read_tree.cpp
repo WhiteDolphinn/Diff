@@ -24,6 +24,7 @@ static struct Node* get_n(char* expr, int* index);
 static struct Node* get_e(char* expr, int* index);
 static struct Node* get_t(char* expr, int* index);
 static struct Node* get_p(char* expr, int* index);
+static struct Node* get_f(char* expr, int* index);
 
 void read_expession_preorder(FILE* source_file, Node** root)
 {
@@ -166,12 +167,6 @@ void read_expession_inorder(FILE* source_file, Node** root)
     }
 
     read_node_inorder(expession, root);
-
-    /*if(is_correct_read == false)
-    {
-        printf("Ошибка в чтении выражения.\n");
-        delete_tree(*root);
-    }*/
 }
 
 static void read_node_inorder(char* expr, Node** root)
@@ -286,11 +281,11 @@ static void read_variable_inorder(char* expr, Node** root, int* index)
     sscanf(expr + (*index), "%[^(]", func);
     printf("%s\n", func);
 
-    void (*push_func)(char*, Node**, int*, char*) = empty_func;
+   // void (*push_func)(char*, Node**, int*, char*) = empty_func;
 
     #define DEFFUNC(SYMB, FUNC, PUSH, DIFF) \
-        push_func = PUSH;                   \
-        push_func(expr, root, index, func); \
+        /*push_func = PUSH;*/               \
+        PUSH(expr, root, index, func);      \
 
     #include "diff_funcs.h"
 
@@ -435,20 +430,46 @@ static int get_g(char* expr, Node** root)
 
 static struct Node* get_n(char* expr, int* index)
 {
-    int value = 0;
-    if(expr[*index] > '9' || expr[*index] < '0')
+    double value = 0;
+
+    bool is_neg = expr[*index] == '-';
+    if(is_neg)  (*index)++;
+
+    if((expr[*index] > '9' || expr[*index] < '0'))
     {
-        printf("Syntax error in pos.%d. Symbol is %c but expected number\n", *index, expr[*index]);
-        return create_node(SYNTAX_ERROR, SYNTAX_ERROR_IN_GET_N);
+        /*printf("Syntax error in pos.%d. Symbol is %c but expected number\n", *index, expr[*index]);
+        return create_node(SYNTAX_ERROR, SYNTAX_ERROR_IN_GET_N);*/
+        (*index)++;
+        return create_node(VAR, expr[(*index) - 1]);
     }
 
     while(expr[*index] <= '9' && expr[*index] >= '0')
     {
-        int value2 = expr[*index] - '0';
+        double value2 = expr[*index] - '0';
         (*index)++;
         value = 10 * value + value2;
     }
-    return create_node(NUMBER, value);
+
+    if(expr[*index] == '.' || expr[*index] == ',')
+    {
+        (*index)++;
+        double double_part = 0;
+        double ten_pow = 10;
+
+        while(expr[*index] <= '9' && expr[*index] >= '0')
+        {
+            double_part += (expr[*index] - '0') / ten_pow;
+            (*index)++;
+            ten_pow *= 10;
+        }
+
+        value += double_part;
+    }
+
+    if(!is_neg)
+        return create_node(NUMBER, value);
+    else
+        return create_node(NUMBER, -value);
 }
 
 static struct Node* get_e(char* expr, int* index)
@@ -491,11 +512,40 @@ static struct Node* get_p(char* expr, int* index)
         struct Node* answer = get_e(expr, index);
 
         if(expr[*index] != ')')
-            printf("Syntax error in pos.%d. Symbol is %c but expected )", *index, expr[*index]);/////////////////////
+            printf("Syntax error in pos.%d. Symbol is %c but expected )\n", *index, expr[*index]);/////////////////////
 
         (*index)++;
         return answer;
     }
 
+    return get_f(expr, index);
+}
+
+static struct Node* get_f(char* expr, int* index)
+{
+    struct Node* answer = nullptr;
+    struct Node* func_argument = nullptr;
+
+    char func[MAX_FUNC_LENGTH] = {};
+    sscanf(expr + (*index), "%[^(]", func);
+    /*while(expr[*index] != '(')  (*index)++;
+    (*index)++;*/
+    //printf("func = %s\n", func);
+
+    #define DEFFUNC(SYMB, FUNC, PUSH, DIFF)         \
+        if(!stricmp(func, #FUNC))                   \
+        {                                           \
+            while(expr[*index] != '(')  (*index)++; \
+            func_argument = get_p(expr, index);     \
+            answer = create_node(SYMB, SYMB);       \
+            answer->left = func_argument;           \
+            return answer;                          \
+        }                                           \
+
+    #include "diff_funcs.h"
+
+    #undef DEFFUNC
+
     return get_n(expr, index);
+
 }

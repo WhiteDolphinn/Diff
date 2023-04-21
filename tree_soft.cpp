@@ -12,6 +12,12 @@ struct Node* create_node(int type, double value, struct Node* left, struct Node*
 {
     struct Node* node = (struct Node*)calloc(1, sizeof(struct Node));
 
+    if(node == nullptr)
+    {
+        printf("node is nullptr\n");
+        return nullptr;
+    }
+
     node->type = type;
     node->value = value;
     node->left = left;

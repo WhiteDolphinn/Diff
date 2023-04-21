@@ -99,13 +99,13 @@ struct Node* diff(struct Node* node)
 
     switch(node->type)
     {
-        struct Node* (*diff_func)(struct Node*); //////hz
+        //struct Node* (*diff_func)(struct Node*); //////hz
 
         #define DEFFUNC(SYMB, FUNC, PUSH, DIFF)         \
             case FUNC:                                  \
             {                                           \
-                diff_func = DIFF;                       \
-                struct Node* answer = diff_func(node);  \
+                /*diff_func = DIFF;*/                   \
+                struct Node* answer = DIFF(node);       \
                 optimizate_tree(answer);                \
                 return answer;                          \
             }                                           \
@@ -124,7 +124,8 @@ struct Node* diff(struct Node* node)
 
 static struct Node* diff_var(struct Node* node)
 {
-    assert(node != nullptr);
+    (void) node;
+    // assert(node != nullptr);
     return num(1);
 }
 static struct Node* diff_number(struct Node* node)

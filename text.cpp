@@ -3,6 +3,8 @@
 #include <sys/stat.h>
 #include <ctype.h>
 #include "text.h"
+#include "log.h"
+
 
 size_t num_of_symbols(const char* name_of_file)
 {

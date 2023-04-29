@@ -23,6 +23,7 @@ static int get_g(char* expr, Node** root);
 static struct Node* get_n(char* expr, int* index);
 static struct Node* get_e(char* expr, int* index);
 static struct Node* get_t(char* expr, int* index);
+static struct Node* get_pow_func(char* expr, int* index);
 static struct Node* get_p(char* expr, int* index);
 static struct Node* get_f(char* expr, int* index);
 
@@ -490,10 +491,26 @@ static struct Node* get_e(char* expr, int* index)
 
 static struct Node* get_t(char* expr, int* index)
 {
-    struct Node* answer = get_p(expr, index);
+    struct Node* answer = get_pow_func(expr, index);
     struct Node* cur_node = answer;
 
     while(expr[*index] == '*' || expr[*index] == '/')
+    {
+        int op = expr[*index];
+        (*index)++;
+        cur_node = create_node(op, op, answer);
+        answer = cur_node;
+        answer->right = get_pow_func(expr, index);
+    }
+    return answer;
+}
+
+static struct Node* get_pow_func(char* expr, int* index)
+{
+    struct Node* answer = get_p(expr, index);
+    struct Node* cur_node = answer;
+
+    while(expr[*index] == '^')
     {
         int op = expr[*index];
         (*index)++;

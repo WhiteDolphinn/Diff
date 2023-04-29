@@ -88,33 +88,51 @@ static void node_print(struct Node* node)
         graph_add_arrow(node, node->right, "#FF0000");
 }
 
-void tree_print_inorder(struct Node* tree)
+void tree_print_inorder(FILE* file, struct Node* tree)
 {
     if(tree == nullptr)
         return;
 
-    printf("( ");
+    if(tree->type == NUMBER || tree->type == VAR || tree->type == ADD || tree->type == SUB || tree->type == MUL || tree->type == DIV || tree->type == POW)
+    {
+        fprintf(file, "{ ");
+        tree_print_inorder(file, tree->left);
 
-    tree_print_inorder(tree->left);
+        if(tree->type == NUMBER)
+            fprintf(file, "%lf ", tree->value);
+        else if(tree->type == VAR)
+            fprintf(file, "%c ", (char)tree->value);
+        else
+        {
+            switch((int)tree->value)
+            {
+                case ADD:   fprintf(file, "+ "); break;
+                case SUB:   fprintf(file, "- "); break;
+                case MUL:   fprintf(file, "\\cdot "); break;
+                case DIV:   fprintf(file, "/ "); break;
+                case POW:   fprintf(file, "^ "); break;
+                default:  fprintf(file, "bebra\n"); break;
+            }
+        }
 
-    if(tree->type == 0)
-        printf("%lf ", tree->value);
+        tree_print_inorder(file, tree->right);
+        fprintf(file, "} ");
+    }
     else
     {
-        switch((int)tree->value)
+        switch(tree->type)
         {
-            case ADD:   printf("+ "); break;
-            case SUB:   printf("- "); break;
-            case MUL:   printf("* "); break;
-            case DIV:   printf("/ "); break;
-            case POW:   printf("^ "); break;
-            default:  printf("bebra\n"); break;
+            case LN: fprintf(file, "ln(");   break;
+            case SIN: fprintf(file, "sin("); break;
+            case COS: fprintf(file,"cos("); break;
+            case TAN: fprintf(file, "tan("); break;
+            case COT: fprintf(file, "cot("); break;
+            default:    break;
         }
+
+        tree_print_inorder(file, tree->left);
+        fprintf(file, "}");
     }
-
-    tree_print_inorder(tree->right);
-
-    printf(") ");
 }
 
 struct Node* copy_node(struct Node* node)

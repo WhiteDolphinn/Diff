@@ -24,5 +24,6 @@ enum Type{
 
 double eval(struct Node* node);
 struct Node* diff(struct Node* node);
+struct Node* diff_to_tex(struct Node* node);
 
 #endif

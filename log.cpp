@@ -20,6 +20,7 @@ FILE* get_log_file(const char* resolution)
 
     static FILE* log_file_txt = nullptr;
     static FILE* log_file_dot = nullptr;
+    static FILE* log_file_tex = nullptr;
 
     if(!strcmp(resolution, ".txt"))
     {
@@ -64,6 +65,25 @@ FILE* get_log_file(const char* resolution)
                 //atexit(close_log_file_dot);
         }
         return log_file_dot;
+    }
+
+    if(!strcmp(resolution, ".tex"))
+    {
+        if(log_file_tex == nullptr)
+        {
+                log_file_tex = fopen(filename, "w");
+                if(log_file_tex == nullptr)
+                {
+                    printf("I can't open <%s> file\n", filename);
+                    printf("Please, create folder <.log> in this directory.\n");
+                    printf("Press any key to continue...");
+                    char buf = 0;
+                    scanf("%c", &buf);
+                    assert(0);
+                }
+                //atexit(close_log_file_dot);
+        }
+        return log_file_tex;
     }
 
     return nullptr;

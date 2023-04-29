@@ -38,6 +38,7 @@
 int main()
 {
     struct Node* n1 = nullptr;
+    struct Node* diff_n = nullptr;
     FILE* source_file = fopen("expession.txt", "r");
 
     if(source_file == nullptr)
@@ -47,8 +48,13 @@ int main()
     }
 
     if(read_expession_rec_descent(source_file, &n1) == 0)
-        tree_print(n1);
+    {
+        optimizate_tree(n1);
+        diff_n = diff(n1);
+        tree_print(diff_n);
+    }
 
     delete_tree(n1);
+    delete_tree(diff_n);
     return 0;
 }
